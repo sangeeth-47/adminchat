@@ -36,7 +36,7 @@ body {
   font-family: 'Exo 2', sans-serif;
   background: var(--bg-void);
   color: var(--text-primary);
-  height: 100vh;
+  height: 100dvh;
   overflow: hidden;
 }
 
@@ -58,7 +58,7 @@ body::after {
 }
 
 .container {
-  height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -210,6 +210,10 @@ input:focus {
 input::placeholder { color: var(--text-muted); font-size: 12px; }
 
 button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   width: 100%; background: transparent;
   border: 1px solid var(--cyan); color: var(--cyan);
   font-family: 'Orbitron', monospace;
@@ -225,9 +229,13 @@ button::before {
   position: absolute; inset: 0;
   background: var(--cyan);
   transform: translateX(-100%);
+  z-index: 1;
   transition: transform 0.25s; z-index: 0;
 }
-
+button span,
+button .spinner {
+  z-index: 2;
+}
 button:hover::before { transform: translateX(0); }
 button:hover { color: var(--bg-void); }
 button span { position: relative; z-index: 1; }
@@ -475,6 +483,7 @@ button span { position: relative; z-index: 1; }
 .chat-input {
   display: flex;
   padding: 10px 14px;
+  padding-bottom: calc(10px + env(safe-area-inset-bottom));
   background: var(--bg-panel);
   border-top: 1px solid var(--border);
   flex-shrink: 0; align-items: stretch; gap: 0;
@@ -609,6 +618,38 @@ input.field-error {
   border-color: #ff4444 !important;
   background: rgba(180,20,20,0.08) !important;
 }
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(0,0,0,0.15);
+  border-top: 2px solid #000;
+  border-right: 2px solid #00e5ff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  display: none;
+  position: relative;
+  z-index: 3;
+  box-shadow: 0 0 6px rgba(1, 255, 234, 0.5);
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+button.loading {
+  pointer-events: none;
+}
+button.loading::before {
+  transform: translateX(0); /* keep filled */
+}
+button.loading .btn-text {
+  display: none;
+}
+
+button.loading .spinner {
+  display: block;
+}
 </style>
 </head>
 
@@ -642,7 +683,10 @@ input.field-error {
       </div>
       <label class="field-label">Operator Email</label>
       <input id="email" placeholder="admin@sangeeth47.in" type="email">
-      <button onclick="sendOtp()"><span>Initialize OTP Protocol</span></button>
+      <button id="otpBtn" onclick="sendOtp()">
+      <span class="btn-text">Initialize OTP Protocol</span>
+      <span class="spinner"></span>
+    </button>
     </div>
   </div>
 
@@ -655,9 +699,10 @@ input.field-error {
       <div class="otp-hint">Enter the OTP transmitted to your terminal</div>
       <label class="field-label">OTP Token</label>
       <input id="otp" placeholder="_ _ _ _ _ _" type="text" maxlength="6" inputmode="numeric" pattern="[0-9]*" style="text-align:center;letter-spacing:8px;font-size:18px;" oninput="this.value=this.value.replace(/\D/g,'').slice(0,6)">
-      <button onclick="verifyOtp()" style="border-color:var(--amber);color:var(--amber);">
-        <span>Authenticate</span>
-      </button>
+      <button id="verifyBtn" onclick="verifyOtp()" style="border-color:var(--amber);color:var(--amber);">
+      <span class="btn-text">Authenticate</span>
+      <span class="spinner"></span>
+    </button>
     </div>
   </div>
 
@@ -781,6 +826,9 @@ function setFieldError(el, hasError) {
 
 // ── OTP ──
 async function sendOtp() {
+  const btn = document.getElementById("otpBtn");
+  if (btn) btn.classList.add("loading");
+
   const emailEl = document.getElementById("email");
   const val = emailEl.value.trim();
 
@@ -788,14 +836,15 @@ async function sendOtp() {
     setFieldError(emailEl, true);
     showToast("Email address is required.", "error");
     emailEl.focus();
+    if (btn) btn.classList.remove("loading");
     return;
   }
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(val)) {
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
     setFieldError(emailEl, true);
     showToast("Enter a valid email address.", "error");
     emailEl.focus();
+    if (btn) btn.classList.remove("loading");
     return;
   }
 
@@ -805,18 +854,27 @@ async function sendOtp() {
       headers: {"Content-Type":"application/json"},
       body: JSON.stringify({ email: val })
     });
+
     if (!res.ok) {
       showToast("Failed to send OTP. Try again.", "error");
+      if (btn) btn.classList.remove("loading");
       return;
     }
+
     showToast("OTP transmitted to your terminal.", "info");
     showScreen("otpBox");
+
   } catch (e) {
     showToast("Network error. Check your connection.", "error");
   }
+
+  if (btn) btn.classList.remove("loading");
 }
 
 async function verifyOtp() {
+  const btn = document.getElementById("verifyBtn");
+  if (btn) btn.classList.add("loading");
+
   const otpEl = document.getElementById("otp");
   const val = otpEl.value.trim();
 
@@ -824,6 +882,7 @@ async function verifyOtp() {
     setFieldError(otpEl, true);
     showToast("OTP is required.", "error");
     otpEl.focus();
+    if (btn) btn.classList.remove("loading");
     return;
   }
 
@@ -831,6 +890,7 @@ async function verifyOtp() {
     setFieldError(otpEl, true);
     showToast("OTP must be exactly 6 digits.", "error");
     otpEl.focus();
+    if (btn) btn.classList.remove("loading");
     return;
   }
 
@@ -843,26 +903,33 @@ async function verifyOtp() {
         otp: val
       })
     });
+
     const data = await res.json();
 
     if (!res.ok || !data.token) {
       setFieldError(otpEl, true);
       otpEl.value = "";
-      showToast(data.message || "Invalid or expired OTP. Try again.", "error");
+      showToast(data.message || "Invalid or expired OTP.", "error");
       otpEl.focus();
+      if (btn) btn.classList.remove("loading");
       return;
     }
 
     token = data.token;
     localStorage.setItem("token", token);
+
     showToast("Authentication successful.", "success");
+
     setTimeout(() => {
       showScreen("chat");
       startSocket();
     }, 600);
+
   } catch (e) {
     showToast("Network error. Check your connection.", "error");
   }
+
+  if (btn) btn.classList.remove("loading");
 }
 
 // ── USERS ──
