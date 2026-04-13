@@ -650,6 +650,10 @@ button.loading .btn-text {
 button.loading .spinner {
   display: block;
 }
+.logout-btn.offline {
+  border-color: var(--text-muted);
+  color: var(--text-secondary);
+}
 </style>
 </head>
 
@@ -666,7 +670,7 @@ button.loading .spinner {
         <div class="header-sub">// Control Interface</div>
       </div>
     </div>
-    <button class="logout-btn" onclick="logout()"><span>[ Logout ]</span></button>
+    <div id="authStatus" class="logout-btn"><span>[ Offline ]</span></div>
   </div>
 
   <!-- LOGIN -->
@@ -788,6 +792,17 @@ function showScreen(id) {
     s.classList.remove("active");
   });
   document.getElementById(id).classList.add("active");
+
+  const authEl = document.getElementById("authStatus");
+
+  if (id === "chat") {
+    authEl.innerHTML = "<span>[ Logout ]</span>";
+    authEl.onclick = logout;
+  } else {
+    authEl.innerHTML = "<span>[ Offline ]</span>";
+    authEl.onclick = null;
+    document.getElementById("otp").value = "";
+  }
 }
 
 // ── SIDEBAR ──
@@ -1129,8 +1144,24 @@ function addMessage(text, isMe, timestamp = null) {
 function logout() {
   localStorage.removeItem("token");
   if (ws) ws.close();
+
+  // Clear all input fields
+  document.getElementById("email").value = "";
+  document.getElementById("otp").value = "";
+  document.getElementById("msg").value = "";
+
+  // Reset session state
+  currentSession = null;
+  document.getElementById("messages").innerHTML = "";
+  document.getElementById("users").innerHTML = "";
+  document.getElementById("sessionCount").innerText = "0";
+
+  // Clear stored sessions
+  for (let key in sessions) delete sessions[key];
+
   showScreen("login");
 }
+authEl.classList.toggle("offline", id !== "chat");
 </script>
 
 </body>
