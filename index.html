@@ -780,6 +780,12 @@ let sidebarOpen = true;
 
 const sessions = {};
 const msgInput = document.getElementById("msg");
+msgInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    sendReply();
+  }
+});
 
 // ── INIT ──
 window.onload = () => {
@@ -870,7 +876,7 @@ async function sendOtp() {
   }
 
   try {
-    const res = await fetch("https://chat.sangeeth47.in/request-otp", {
+    const res = await fetch("https://chat.sangeeth47.in/api/request-otp", {
       method: "POST",
       headers: {"Content-Type":"application/json"},
       body: JSON.stringify({ email: val })
@@ -916,7 +922,7 @@ async function verifyOtp() {
   }
 
   try {
-    const res = await fetch("https://chat.sangeeth47.in/verify-otp", {
+    const res = await fetch("https://chat.sangeeth47.in/api/verify-otp", {
       method: "POST",
       headers: {"Content-Type":"application/json"},
       body: JSON.stringify({
@@ -1044,7 +1050,7 @@ async function selectSession(sessionId) {
     document.getElementById("sidebarWrap").classList.add("collapsed");
   }
 
-  const res = await fetch(`https://chat.sangeeth47.in/messages?session_id=${sessionId}`, {
+  const res = await fetch(`https://chat.sangeeth47.in/api/messages?session_id=${sessionId}`, {
     headers: { "Authorization": "Bearer " + token }
   });
 
@@ -1054,7 +1060,7 @@ async function selectSession(sessionId) {
 
 // ── SOCKET ──
 function startSocket() {
-  ws = new WebSocket("wss://chat.sangeeth47.in");
+  ws = new WebSocket("wss://chat.sangeeth47.in/wss");
 
   ws.onopen = () => { ws.send(JSON.stringify({ type: "auth", token })); };
 
