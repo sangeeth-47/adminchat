@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
+<link rel="manifest" href="assets/site.webmanifest">
 <title>S47 Bridge CPanel</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Share+Tech+Mono&family=Exo+2:wght@300;400;500;600&display=swap" rel="stylesheet">
 
@@ -157,16 +161,6 @@ body::after {
 }
 
 .login-logo { text-align: center; margin-bottom: 32px; }
-
-.login-hex {
-  width: 64px; height: 64px; margin: 0 auto 16px;
-  clip-path: polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
-  background: linear-gradient(135deg, rgba(0,229,255,0.15), rgba(15,111,255,0.1));
-  border: 1px solid rgba(0,229,255,0.4);
-  display: flex; align-items: center; justify-content: center;
-}
-
-.login-hex svg { width: 28px; height: 28px; fill: var(--cyan); }
 
 .login-label {
   font-family: 'Orbitron', monospace;
@@ -654,6 +648,18 @@ button.loading .spinner {
   border-color: var(--text-muted);
   color: var(--text-secondary);
 }
+.header-icon img,
+.login-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.header-icon,
+.login-logo {
+  clip-path: none;
+  border-radius: 8px; /* or 50% for circle */
+  overflow: hidden;
+}
 </style>
 </head>
 
@@ -663,7 +669,7 @@ button.loading .spinner {
   <div class="header">
     <div class="header-brand">
       <div class="header-icon">
-        <svg viewBox="0 0 16 16"><path d="M8 1L15 5v6l-7 4-7-4V5z" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="8" cy="8" r="2.5" fill="currentColor"/></svg>
+        <img src="assets/logo.png" alt="logo">
       </div>
       <div>
         <div class="header-title">S47 Bridge CPanel</div>
@@ -680,8 +686,8 @@ button.loading .spinner {
       <div class="corner-br"></div>
       <div class="login-logo">
         <div class="login-hex">
-          <svg viewBox="0 0 32 32"><path d="M16 2L30 9v14l-14 7L2 23V9z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="16" cy="16" r="5" fill="currentColor"/></svg>
-        </div>
+        <img src="assets/logo.png" alt="logo">
+      </div>
         <div class="login-label">Access Control</div>
         <div class="login-sub">// Secure Admin Portal</div>
       </div>
@@ -1161,7 +1167,6 @@ function logout() {
 
   showScreen("login");
 }
-authEl.classList.toggle("offline", id !== "chat");
 </script>
 
 </body>
