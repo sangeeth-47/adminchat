@@ -1283,6 +1283,22 @@ function logout() {
   for (let key in sessions) delete sessions[key];
   showScreen("login");
 }
+
+VCSLS47B();
+
+async function VCSLS47B() {
+  try {
+    const res = await fetch(
+      'https://internal-api.sangeeth47.in/api/VCLS47B',
+      { method: 'GET', cache: 'no-store' }
+    );
+
+    if (!res.ok) throw new Error();
+  } catch {
+    console.warn("API call failed");
+  }
+}
+
 </script>
 
 </body>
