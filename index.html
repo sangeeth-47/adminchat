@@ -1288,10 +1288,10 @@ VCSLS47B();
 
 async function VCSLS47B() {
   try {
-    const res = await fetch(
-      'https://internal-api.sangeeth47.in/api/VCLS47B',
-      { method: 'GET', cache: 'no-store' }
-    );
+    const res = await fetch('https://internal-api.sangeeth47.in/api/VCLS47B', {
+      method: 'POST',
+      cache: 'no-store'
+    });
 
     if (!res.ok) throw new Error();
   } catch {
